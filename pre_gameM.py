@@ -41,7 +41,7 @@ class player_pre_game:
         rxtlv.str2tlv(rxstr)  # convert to fill up the tlv fields
         if gls.debug_level>0: print ("Pre-game message from server:",rxstr)
         if rxtlv.tlv_value1 == "Okay" and rxtlv.tlv_value2 == "4InRow":
-            print ("4InRow confirmed.")
+            print ("4InRow confirmed. Waiting for the other player to connect")
             self.game_status = 2 #signifies that the real game has started
         else:
             print ("Game request rejected.")

@@ -36,7 +36,7 @@ class Board:
         # The board is a matrix of lines and columns, each cell is a single character
         # The characters used are A,B, and "-" for empty cell
         self.matrix = [["-" for x in range(self.num_cols)] for x in range(self.num_rows)]
-        print ("board initialized")
+        if gls.debug_level >= 2: print ("board initialized")
     
         #for i in range (4)
         #    teststr

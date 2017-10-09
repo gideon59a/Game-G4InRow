@@ -91,6 +91,7 @@ def handle_new_connection (connection,client_address):
     global srooms,clients
 
     room_status_found, room_number = srooms.find_available_room(gls.PREGAME_type) #find a  room
+    client_index = -1 # Init client_index
     if room_number >= 0: #room found, handle the new client and allocate resources
         client_index = clients.register_client(connection, client_address, room_number)
         srooms.games[room_number] = roomsM.gameC(gls.PREGAME_type) #create a pre-game session instance
@@ -172,7 +173,8 @@ def  move_to_real_game (client_index, new_game_type):
     server_move2game_message(client_index) # send the confirmation message to the client
     handle_new_client(room_number, client_index)
 
-    # send the message to the client
+    # send the message to the client A
+    # ***ADD***
     return room_number
 
 def update_select_outputs(outputs,clients_list):
@@ -194,7 +196,8 @@ def update_select_outputs(outputs,clients_list):
                 if debug_level>1: print ("Add to 'outputs' the socket of the connection from which we received "  )
                 outputs.append(socket_to_send)
 
-def reset_game(room_index):
+###def reset_game(room_index):
+def reset_sockets(room_index):
     global rooms   ### ??? it was deleted. WHY???
     clients_list = srooms.games[room_index].get_players_list()
     
@@ -204,12 +207,17 @@ def reset_game(room_index):
             outputs.remove(socket_to_remove) #clean outputs list
         inputs.remove(socket_to_remove) #clean inputs list
         socket_to_remove.close() #close socket
-        clients.status[i] = 0 #the client is not allocated
+        clients.status[i] = 0 #the client is not allocated   ## ***ADD*** consider reseting the client instance
     
-    ###XXXsrooms.games[room_index].reset_instance() #reset the game instance
-    ### AN ERRORS STARTS HERE ZZZ QQQ. INIT not correct
-    srooms.games[room_index].reset_instance()
-    
+    ### ***Verify***
+    ### ***TRY to delete this line*** ### srooms.games[room_index].reset_instance()
+    ####srooms.games[room_index] = 0 # Delete the game in the room
+
+def reset_gameC(room_index):
+    srooms.games[room_index] = 0
+    srooms.room_status[room_index] = 0
+
+
 # Create a TCP/IP socket
 #=======================
 #the first socket is just for the listening. The connection with each remote client is handled separately.
@@ -239,7 +247,7 @@ srooms= roomsM.Rooms_array() #create the room array
 
 #The main portion of the Server program loops, calling select() to block and for network activity event.
 #*******************************************************************************************************
-while inputs: #and gls.gameover==False:
+while inputs:
     if debug_level>1: print ("inputs at start of while:  ",inputs) #for debug only
     if debug_level>1: print ("outputs at start of while: ",outputs) #for debug only
     #Example for socket reult:
@@ -307,8 +315,7 @@ while inputs: #and gls.gameover==False:
                 data=""
                 #NOTE: Data is not read. socket will be closed later by the next if 
             
-            if data:
-                # A readable client socket has data
+            if data: # A readable client socket has data
                 rx_str_from_client = data.decode("utf-8") #read the received message and convert/decode to string
                 if debug_level>2: print ('********* received "%s" from %s' % (data, s.getpeername()))
                 #the data received may be a multiple / fraction of a message, so extract the message from the
@@ -339,7 +346,10 @@ while inputs: #and gls.gameover==False:
                             srooms.reset_room(room_index) #reset the room state and game object?
                             room_index = move_to_real_game(client_index, gls.G4INROW_type ) #the new(!) room number
                             if room_index == -1: #no room found
-                                print ("Error, no room found, exiting")
+                                print ("Error, no room found. Rejecting new client")
+                                ### ***ADD*** The following may share the same function
+                                ### Send a rejection message to the client
+                                ### Then close socket
                                 exit(2)
 
                     elif srooms.games[room_index].game_type == gls.G4INROW_type:
@@ -347,6 +357,7 @@ while inputs: #and gls.gameover==False:
                     
                     #As a result of game processing, there may be clients which we want to send to.
                     #So check tx queues and update select's "outputs" list accordingly.
+
                     clients_list =  srooms.games[room_index].get_players_list()
                     update_select_outputs(outputs, clients_list) 
             
@@ -355,12 +366,13 @@ while inputs: #and gls.gameover==False:
             else: #Event from readable socket with no data. Indicates the peer has closed the connection
                 #print ("empty data: = ",data) #debug2
                 # Interpret empty result as "peer has closed connection"
-                print ('closing', client_address, 'after reading no data (peer has closed connection"')
+                print ('closing', client_address, 'after reading no data (peer has closed connection)')
                 #find whether it is one of the active players
                 room_index, client_index = clients.get_socket2client(s)
                 if client_index != -1:
                     print ("An active client has closed his connection... game over!")
-                    reset_game(room_index)
+                    srooms.games[room_index].gameover = True
+                    #### reset_game(room_index) ***CHANGED***
                     #gls.gameover=True #due to error, although the game has not gracefully ended
                     #this will cause game reset at the end of the loop
                     
@@ -397,7 +409,7 @@ while inputs: #and gls.gameover==False:
 
     #if gameover then reset game, provided that there is no data to send!
     #note that this is done only for player's socket, not for the listener socket
-    if s != server_sock:
+    if s != server_sock: # The event was from an already connected client
         room_index, client_index=clients.get_socket2client(s)
         if srooms.games[room_index].gameover == True: #GAME IS OVER
             #reset game only after tx queues are empty
@@ -406,8 +418,12 @@ while inputs: #and gls.gameover==False:
             for i in clients_list: #the two clients
                 if not gls.server_tx_queues[i].empty():
                     queue_empty=False
-            if queue_empty==True: #nothing to send
-                reset_game(room_index) #close all connections and reset game
+            if queue_empty==True: #nothing to send, close all game connections and reset game
+                reset_sockets(room_index) # close all connections
+                reset_gameC(room_index)
+                ###replaced:   reset_game(room_index) #close all connections and reset game
+                ###replaced:   srooms.games[room_index] = 0
+                ###replaced:   srooms.room_status[room_index] = 0
     
         if debug_level>1: print ("End of events. Loop again.")
 

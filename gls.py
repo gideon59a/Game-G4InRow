@@ -11,7 +11,7 @@ import queue
 #GAME SCALE
 #==========
 max_clients=4
-MAX_ROOMS = 2
+MAX_ROOMS = 5
 
 debug_level=0 #0 for no debug, 1 for basic debug, 2 for details
 

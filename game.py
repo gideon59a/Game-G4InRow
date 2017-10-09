@@ -142,7 +142,7 @@ def play_player (rxstr):
     if  rxtlv.tlv_type == your_role:
         gls.my_role = rxtlv.tlv_value1 #update my role
         print ("I'm player",gls.my_role)
-        if gls.my_role=="A": print ("Waiting for player B to connect")
+        ### MOVED if gls.my_role=="A": print ("Waiting for player B to connect")
     elif rxtlv.tlv_type == play_command:  #At client: your turn to play (tlv_vlaue are ignored)
         #get input from user if it is my turn:
         if rxtlv.tlv_value1 == gls.my_role :
@@ -277,13 +277,13 @@ def play_server (game_i, rxstr):
             cl_index=clients_list[player_index_in_game]
             
             #send the error message
-            tlv_to_send = tlv (text_message,"",result_str_error)
+            tlv_to_send = tlvM.tlv(text_message,"",result_str_error)
             put_server_tlv_to_client_queue(tlv_to_send, cl_index)
             #XX str_to_send = tlv_to_send.tlv2str()
             #XX gls.server_tx_queues[cl_index].put_nowait(str_to_send) # A's tx queue
             
             #send the play command message
-            tlv_to_send = tlv (play_command,game_i.turn_is,"")
+            tlv_to_send = tlvM.tlv(play_command,game_i.turn_is,"")
             put_server_tlv_to_client_queue(tlv_to_send, cl_index)
             #XX str_to_send = tlv_to_send.tlv2str()
             #XX gls.server_tx_queues[cl_index].put_nowait(str_to_send) # A's tx queue

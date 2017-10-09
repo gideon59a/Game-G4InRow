@@ -1,5 +1,5 @@
 '''
-Created on Oct 2017, started with old "PlayerMain.py" @author: Gideon
+Created on Oct 2017, started with old "PlayerMain.py" @author: Gideonmessage sent
 This is a branch test1111
 '''
 
@@ -32,7 +32,7 @@ def connect2sever (server_ip_address,destination_port):
         print ("error connecting to the server.")
         return -1
     else:    
-        print ("connected to server: ", isock)
+        if gls.debug_level >= 2: print ("connected to server: ", isock)
         return isock
 
 
@@ -83,7 +83,7 @@ while gls.gameover==False: #game not over
         txstr=gls.tx_queue.get_nowait()    
         if debug_level>1: print ('%s: sending "%s"' % (sock.getsockname(),  txstr))      
         sock.send(str.encode(txstr)) #the message must be byte encoded, utf8 is the default
-        print ("message sent.")
+        if gls.debug_level >=2: print ("message sent.")
     
     #2. Receive a single message - ***BLOCKING!***
     try:

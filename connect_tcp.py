@@ -46,7 +46,7 @@ def extract_message(rx_str_from_client, data_stream, rx_queue):
                 rx_message=data_stream[3:end_position]
                 data_stream=data_stream[end_position+3:]
                 if gls.debug_level>1: print ("packet=",rx_message," Remaining data",data_stream)
-                if data_stream: 
+                if data_stream and gls.debug_level>=2:
                     print ("two messages merged. The remaining chunk=",data_stream)
                 #game.server_rx_queues[s_index].put_nowait(rx_message)
                 rx_queue.put_nowait(rx_message)
