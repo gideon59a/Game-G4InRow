@@ -1,10 +1,6 @@
 '''
-Created on May 21, 2015d
-
-
-@author: Gideon
-
-Games server - 1 - Apr 2015
+This is the game server module to run
+Created on May 21, 2015 @author: Gideon updated on Oct2017
 
 This module is the server part for games, each game is between two remote players.
 The purpose of this module is to connect to player pairs, put data received from a player
