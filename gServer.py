@@ -106,9 +106,9 @@ def find_room (client_index,game_type): # find a room for 4InRow game
     """
     global srooms, clients
 
-    room_status_found, room_number = srooms.find_available_room(game_type)  # find a room ZZZZ QQQQ ????
+    room_status_found, room_number = srooms.find_available_room(game_type)  # find a room
     if room_number >= 0:  # room found, handle the new client and allocate resources
-        ###CCC if srooms.games[room_number].num_of_players = 0
+        #deleted: if srooms.games[room_number].num_of_players = 0
         if room_status_found == 0: #an empty room
             # The first player in the room, create a game
             srooms.games[room_number] = roomsM.gameC(game_type)  # create a game instance
@@ -117,11 +117,11 @@ def find_room (client_index,game_type): # find a room for 4InRow game
         elif room_status_found == 1: #a room with already a player
             print (".... just have to add the player to the game ")
             srooms.games[room_number].players[1]=client_index
-        #else the room number is -1, i.e. no room
+        #*ADD* else the room number is -1, i.e. no room
 
     return room_number
 
-def handle_new_player (client_index, game_type): ### ???
+def handle_new_player (client_index, game_type):
     """ Find a room and set for the new player, for the pre-game
     """
     global srooms,clients 
@@ -131,7 +131,7 @@ def handle_new_player (client_index, game_type): ### ???
         #the client is already registered in clients, so one have just to update it
         srooms.games[room_number] = roomsM.gameC() #create a game instance
         srooms.games[room_number].room_number=room_number #update the session instance with the room number
-    return room_number  # qqq here I stopped
+    return room_number
     
 def handle_new_client (room_number, client_index):
     """Add the new client to the room game (room has already been found and allocated in srooms!).
@@ -217,7 +217,20 @@ def reset_gameC(room_index):
     srooms.games[room_index] = 0
     srooms.room_status[room_index] = 0
 
+def get_room_for_new_connection(connection, client_address):
+    room_number, client_index = handle_new_connection(connection, client_address)  # check if there is an available room
+    if client_index >= 0:  # there is room for the new client, allocated the player
+        handle_new_client(room_number, client_index)
+        clients_list = srooms.games[room_number].get_players_list()
+        update_select_outputs(outputs, clients_list)  # ???is it needed here?
+        inputs.append(connection)  # this is added to the "select" probing process, starting at next while loop
+    else:  # no room for the client
+        print("no room for the new client from", client_address)
+        connection.close()
+        # deleted: handle_new_client (game_1,connection,client_address)
+    return room_number
 
+#####################################################################################################
 # Create a TCP/IP socket
 #=======================
 #the first socket is just for the listening. The connection with each remote client is handled separately.
@@ -293,7 +306,8 @@ while inputs:
             if debug_level>2: print ("inputs after appending the new connection:",inputs) #Debug. 
             #Any new connection socket is added to the "inputs" to be watched by "select" 
 
-            ###[***CHANGE***] replace the following with a class that returns -1 if has to close.
+            room_number = get_room_for_new_connection(connection, client_address)
+            """"###[***CHANGE***] The aboved replaced the following.
             ### that class gets the connection and client address as inputs
             room_number, client_index = handle_new_connection(connection, client_address) # check if there is an available room
             if client_index >=0 : # there is room for the new client, allocated the player
@@ -304,8 +318,10 @@ while inputs:
             else: #no room for the client
                 print ("no room for the new client from",client_address)
                 connection.close()
-            ###qqq handle_new_client (game_1,connection,client_address)
-             
+            #deleted: handle_new_client (game_1,connection,client_address)
+            """
+            # check if need to ADD (maybe done above): If room_number == -1 : # EXIT...
+
         else: #readable returns the connection socket, so ready to receive data from this socket
             if debug_level>1: print ("receive data...")
             try: 
