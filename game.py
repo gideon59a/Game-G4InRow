@@ -64,7 +64,7 @@ import G4InRow.gls as gls
 ####from G4InRow.Server_2 import clients
 
 ######################################################################################################################
-#enumerations of the tlv_type
+#enumerations of the tlv_type *** DUPLICATED WITH TLV MODULE ***
 my_info     =0 #info the client sends to the server
 my_move     =1
 play_command=2
@@ -76,42 +76,6 @@ text_message=7
 tlv_value_fieldLen={my_info:10,my_move:2,play_command:2,game_board:56,players_info:20,your_role:2,game_status:6,text_message:100} #TLV value len per tlv_type
 
 debug_level=gls.debug_level
-""" 
-class XXtlv:
-    ""
-    The tlv has 4 "values" (fields): type, len (of values), value 1 and value2
-    ""
-    #global my_info, play_command, my_move, game_board, end_command
-    #(my_info, play_command, my_move, game_board, end_command) = (range(5)) #TLV types enumeration
-    
-    #print ("tlv class:",myinfo, tlv_value_fieldLen[my_info]) #debug 
-    def __init__(self, tlv_type=0, tlv_value1="",tlv_value2=""):
-        self.tlv_type   = tlv_type # An integer for enumeration
-        #if tlv_len==0: 
-        #    self.tlv_len=self.tlv_value_fieldLen[self.tlv_type] # An integer for enumeration
-        #else: #if len is received when tlv is created
-        #    self.tlv_len=tlv_len
-        self.tlv_len    = tlv_value_fieldLen[self.tlv_type]
-        self.tlv_value1 = tlv_value1 #string
-        self.tlv_value2 = tlv_value2 #string
-    
-    def print_tlv(self):
-        if debug_level>1: print ("Type=",self.tlv_type,"Len=",self.tlv_len,"Val1=",self.tlv_value1,"val2=",self.tlv_value2)
-    
-    def tlv2str(self):
-        #strset=str(type)+","+str(self.tlv_value_fieldLen[type])+","+str(value1)+","+str(value2)
-        strset = str(self.tlv_type)+","+str(self.tlv_len)+","+str(self.tlv_value1)+","+str(self.tlv_value2)
-        strset = gls.SOM + strset + gls.EOM #encapsulate message string with SOM and EOM
-        return strset
-    
-    def str2tlv (self,istr):
-        rxtlv_list = re.split(',',istr) #convert the received string to a list (of characters)
-        if debug_level>0: print ("rxtlv_list",rxtlv_list)
-        self.tlv_type = int(rxtlv_list[0])
-        self.tlv_len =  int(rxtlv_list[1])
-        self.tlv_value1 =   rxtlv_list[2]
-        self.tlv_value2 =   rxtlv_list[3]
-"""
     
 ##### GAME INIT ########!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 

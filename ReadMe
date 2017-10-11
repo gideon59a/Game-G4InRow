@@ -1,4 +1,4 @@
 Game code flow description:
 
 Run fisrt the gServer.py, then the clients PlayClient.py
-
+The gls file contains common globals as well as  some attributes to start the game with.

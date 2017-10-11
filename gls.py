@@ -1,12 +1,9 @@
 '''
-Created on May 10, 2015
+Created on May 10, 2015 @author: Gideon
 
-@author: Gideon
-
-Contains globals
+Contains globals + init that has to be moved from here!
 '''
 import queue
-#from G4InRow.boardClass import Board ???qqq
 
 #GAME SCALE
 #==========
